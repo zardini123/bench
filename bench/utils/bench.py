@@ -7,6 +7,7 @@ import subprocess
 import sys
 from json.decoder import JSONDecodeError
 import typing
+import venv
 
 # imports - third party imports
 import click
@@ -31,21 +32,6 @@ logger = logging.getLogger(bench.PROJECT_NAME)
 
 def get_env_cmd(cmd, bench_path="."):
 	return os.path.abspath(os.path.join(bench_path, "env", "bin", cmd))
-
-
-def get_venv_path():
-	venv = which("virtualenv")
-
-	if not venv:
-		current_python = sys.executable
-		with open(os.devnull, "wb") as devnull:
-			is_venv_installed = not subprocess.call(
-				[current_python, "-m", "venv", "--help"], stdout=devnull
-			)
-		if is_venv_installed:
-			venv = f"{current_python} -m venv"
-
-	return venv or log("virtualenv cannot be found", level=2)
 
 
 def update_node_packages(bench_path=".", apps=None):
@@ -143,6 +129,9 @@ def update_npm_packages(bench_path=".", apps=None):
 
 	exec_cmd("npm install", cwd=bench_path)
 
+def create_venv(env_path=os.path.join(".", "env")):
+	logger.log(f"Creating virtual enviroment via venv at {env_path}")
+	venv.create(env_path)
 
 def migrate_env(python, backup=False):
 	import shutil
@@ -153,7 +142,6 @@ def migrate_env(python, backup=False):
 	nvenv = "env"
 	path = os.getcwd()
 	python = which(python)
-	virtualenv = which("virtualenv")
 	pvenv = os.path.join(path, nvenv)
 
 	# Clear Cache before Bench Dies.
@@ -190,7 +178,7 @@ def migrate_env(python, backup=False):
 	venv_creation, packages_setup = 1, 1
 	try:
 		logger.log(f"Setting up a New Virtual {python} Environment")
-		venv_creation = exec_cmd(f"{virtualenv} --python {python} {pvenv}")
+		create_venv(pvenv)
 
 		apps = " ".join([f"-e {os.path.join('apps', app)}" for app in bench.apps])
 		packages_setup = exec_cmd(f"{pvenv} -m pip install --upgrade {apps}")
