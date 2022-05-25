@@ -129,8 +129,13 @@ def update_npm_packages(bench_path=".", apps=None):
 
 	exec_cmd("npm install", cwd=bench_path)
 
-def create_venv(env_path=os.path.join(".", "env")):
+def create_venv(env_path="."):
+	# Python's venv creation places venv contents into whatever directory provided.
+	# Therefore, need to explicitly state "env" folder in env_path argument.
+
 	logger.log(f"Creating virtual enviroment via venv at {env_path}")
+	click.secho(f"venv.create({env_path})", fg="bright_black")
+
 	venv.create(env_path)
 
 def migrate_env(python, backup=False):
@@ -157,7 +162,7 @@ def migrate_env(python, backup=False):
 	except Exception:
 		logger.warning("Please ensure Redis Connections are running or Daemonized.")
 
-	# Backup venv: restore using `virtualenv --relocatable` if needed
+	# Backup venv
 	if backup:
 		from datetime import datetime
 

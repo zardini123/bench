@@ -353,8 +353,9 @@ class BenchSetup(Base):
 		quiet_flag = "" if bench.cli.verbose else "--quiet"
 
 		if not os.path.exists(self.bench.python):
-			# Creates virtual enviroment at cwd under folder "env/"
-			create_venv()
+			# Creates virtual enviroment at bench setup cwd under folder "env/"
+			env_path = os.path.join(self.cwd, 'env')
+			create_venv(env_path)
 
 		self.pip()
 
