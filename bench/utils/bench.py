@@ -134,7 +134,10 @@ def create_venv(env_path="."):
 	# Therefore, need to explicitly state "env" folder in env_path argument.
 
 	logger.log(f"Creating virtual enviroment via venv at {env_path}")
-	click.secho(f"venv.create({env_path})", fg="bright_black")
+
+	# Running the following in shell should be identical to running create_venv() function.
+	python = which("python3")
+	click.secho(f"$ {python} -m venv {env_path}", fg="bright_black")
 
 	venv_builder = venv.EnvBuilder(
 		system_site_packages=False,
