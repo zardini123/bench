@@ -7,7 +7,6 @@ import subprocess
 import sys
 from json.decoder import JSONDecodeError
 import typing
-import venv
 
 # imports - third party imports
 import click
@@ -129,27 +128,17 @@ def update_npm_packages(bench_path=".", apps=None):
 
 	exec_cmd("npm install", cwd=bench_path)
 
-def create_venv(env_path="."):
+def create_venv(bench_path=".", python="python3"):
 	# Python's venv creation places venv contents into whatever directory provided.
 	# Therefore, need to explicitly state "env" folder in env_path argument.
 
+	name_of_env = "env"
+	env_path = os.path.join(bench_path, name_of_env)
 	logger.log(f"Creating virtual enviroment via venv at {env_path}")
 
-	# Running the following in shell should be identical to running create_venv() function.
-	python = which("python3")
-	click.secho(f"$ {python} -m venv {env_path}", fg="bright_black")
+	python_path = which(python)
 
-	venv_builder = venv.EnvBuilder(
-		system_site_packages=False,
-		clear=False,
-		symlinks=True,
-		upgrade=False,
-		with_pip=True,
-		prompt=None,
-		upgrade_deps=False,
-	)
-
-	venv_builder.create(env_path)
+	exec_cmd(f"{python_path} -m venv {name_of_env}", cwd=bench_path)
 
 def migrate_env(python, backup=False):
 	import shutil
@@ -196,7 +185,7 @@ def migrate_env(python, backup=False):
 	venv_creation, packages_setup = 1, 1
 	try:
 		logger.log(f"Setting up a New Virtual {python} Environment")
-		create_venv(pvenv)
+		create_venv(pvenv, python)
 
 		apps = " ".join([f"-e {os.path.join('apps', app)}" for app in bench.apps])
 		packages_setup = exec_cmd(f"{pvenv} -m pip install --upgrade {apps}")
