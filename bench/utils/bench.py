@@ -136,7 +136,17 @@ def create_venv(env_path="."):
 	logger.log(f"Creating virtual enviroment via venv at {env_path}")
 	click.secho(f"venv.create({env_path})", fg="bright_black")
 
-	venv.create(env_path)
+	venv_builder = venv.EnvBuilder(
+		system_site_packages=False,
+		clear=False,
+		symlinks=True,
+		upgrade=False,
+		with_pip=True,
+		prompt=None,
+		upgrade_deps=False,
+	)
+
+	venv_builder.create(env_path)
 
 def migrate_env(python, backup=False):
 	import shutil
